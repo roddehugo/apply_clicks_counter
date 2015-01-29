@@ -20,6 +20,8 @@ static int usage(const char *progname) {
   fprintf(stderr, "Reads text from stdin and displays it. "
           "Empty string: clear screen\n");
   fprintf(stderr, "Options:\n"
+          "\t-t <text>: Text to be displayed (<= 13 chars).\n"
+          "\t-s <seconds>: seconds to sleep.\n"
           "\t-f <font-file>: Use given font.\n"
           "\t-r <rows>     : Display rows. 16 for 16x32, 32 for 32x32. "
           "Default: 32\n"
@@ -35,23 +37,23 @@ static bool parseColor(Color *c, const char *str) {
 }
 
 int main(int argc, char *argv[]) {
+  Color color(0, 105, 166);
   const char *line = NULL;
-  Color color(255, 0, 0);
-  const char *bdf_font_file = "/root/rpi-rgb-led-matrix/fonts/7x14.bdf";
-  int rows = 16;
-  int chain = 3;
-  int x_orig = 1;
-  int y_orig = 1;
-  int microseconds = 2000000;
+  const char *bdf_font_file = "./fonts/7x14.bdf";
+  unsigned int rows = 16;
+  unsigned int chain = 3;
+  unsigned int x_orig = 1;
+  unsigned int y_orig = 1;
+  unsigned int seconds = 2;
 
   int opt;
-  while ((opt = getopt(argc, argv, "r:c:x:y:f:t:m:C:")) != -1) {
+  while ((opt = getopt(argc, argv, "r:c:x:y:s:f:t:C:")) != -1) {
     switch (opt) {
     case 'r': rows = atoi(optarg); break;
     case 'c': chain = atoi(optarg); break;
     case 'x': x_orig = atoi(optarg); break;
     case 'y': y_orig = atoi(optarg); break;
-    case 'm': microseconds = atoi(optarg); break;
+    case 's': seconds = atoi(optarg); break;
     case 'f': bdf_font_file = strdup(optarg); break;
     case 't': line = strdup(optarg); break;
     case 'C':
@@ -108,7 +110,7 @@ int main(int argc, char *argv[]) {
     return -1;
   rgb_matrix::DrawText(canvas, font, x, y + font.baseline(), color, line);
   y += font.height();
-  usleep(microseconds);
+  usleep(seconds*1000000);
   // Finished. Shut down the RGB matrix.
   canvas->Clear();
   delete canvas;
