@@ -1,6 +1,6 @@
 CXXFLAGS=-Wall -O3 -g
-SOURCES=display_text.cpp
-OBJECTS=$(SOURCES:.cpp=.o)
+SOURCES=display_text.cc
+OBJECTS=$(SOURCES:.cc=.o)
 EXECUTABLE=display_text.app
 
 # Where our library resides.
@@ -19,7 +19,7 @@ $(EXECUTABLE) : $(OBJECTS) $(RGB_LIBRARY)
 $(RGB_LIBRARY):
 	$(MAKE) -C $(RGB_LIBDIR)
 
-%.o : %.cpp
+%.o : %.cc
 	$(CXX) -I$(RGB_INCDIR) $(CXXFLAGS) -c -o $@ $<
 
 clean:
