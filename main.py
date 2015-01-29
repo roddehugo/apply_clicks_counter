@@ -61,12 +61,12 @@ class DisplayThread(StoppableThread):
             self.kill()
             print self.old_value, self.current_value
             print "[DT] Display On"
-            # current_command = COMMAND.split() + [value]
-            # self.p = subprocess.Popen(current_command,
-            #                      shell=True,
-            #                      stdout=subprocess.PIPE,
-            #                      stderr=subprocess.PIPE)
-            # self.stdout, self.stderr = self.p.communicate()
+            current_command = COMMAND.split() + [self.current_value]
+            self.p = subprocess.Popen(current_command,
+                                      shell=True,
+                                      stdout=subprocess.PIPE,
+                                      stderr=subprocess.PIPE)
+            self.stdout, self.stderr = self.p.communicate()
 
     def kill(self):
         if self.p:
