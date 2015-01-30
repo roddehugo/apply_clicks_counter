@@ -71,7 +71,7 @@ class DisplayThread(StoppableThread):
             print self.stdout
 
     def kill(self):
-        if self.p:
+        if self.p and self.p.pid:
             print "[DT] Kill"
             os.killpg(self.p.pid, signal.SIGTERM)
 
