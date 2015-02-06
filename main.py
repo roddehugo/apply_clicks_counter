@@ -160,9 +160,13 @@ if __name__ == '__main__':
     display.start()
     display.join()
 
-    while request.is_alive():
-        display = DisplayThread(values_queue)
-        display.start()
-        display.join()
+    try:
+        while request.is_alive():
+            display = DisplayThread(values_queue)
+            display.start()
+            display.join()
+    except KeyboardInterrupt:
+        exit_gracefully()
 
+    request.stop()
     request.join()
