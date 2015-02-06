@@ -67,7 +67,7 @@ def get_apply_clicks():
         return None
     if res:
         # return str(json.loads(res.text).get('count', None))
-        return str(res.text)
+        return str(res.text).strip()
     return None
 
 
