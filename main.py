@@ -1,172 +1,103 @@
 # -*- coding: utf-8 -*-
-import json
 import logging
-import Queue
 import os
-import requests
-import signal
-import socket
-import subprocess
 import sys
-import threading
-import time
+from Queue import Queue
 
-PYTHON_ROOT = os.path.dirname(os.path.realpath(__file__))
-COMMAND = "%s/display_text.app" % PYTHON_ROOT
-
-values_queue = Queue.Queue()
-lock_socket = None
+from request_thread import RequestThread
+from display_thread import DisplayThread
+from graceful_interrupt_handler import GracefulInterruptHandler
 
 
-def exit_gracefully(signum, frame):
-    # restore the original signal handler as otherwise evil things will happen
-    # in raw_input when CTRL+C is pressed, and our signal handler is not re-entrant
-    signal.signal(signal.SIGINT, original_sigint)
-
-    def exit():
-        logging.info('Waiting for threads to terminate...')
-        request.stop()
-        request.join()
-        if lock_socket:
-            lock_socket.close()
-        sys.exit(1)
-
-    try:
-        if raw_input("\nReally quit? (y/n): ").lower().startswith('y'):
-            exit()
-    except KeyboardInterrupt:
-        exit()
-
-    # restore the exit gracefully handler here
-    signal.signal(signal.SIGINT, exit_gracefully)
+PID = str(os.getpid())
+PIDFILE = "/tmp/apply_clicks_counter_daemon.pid"
 
 
-def get_lock(process_name):
-    lock_socket = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
-    try:
-        lock_socket.bind('\0' + process_name)
-        logging.info('%s got the lock' % process_name)
-    except socket.error:
-        logging.info('%s lock exists' % process_name)
-        sys.exit()
+def exit_gracefuly():
+    """
+    We ensure every thread ends correctly.
+    We remove the PIDFILE.
+    Then Ciao!
+    """
 
-
-def center(val, max_chars=13):
-    # keep only 13 chars
-    val = val[:max_chars]
-    l = len(val)
-    spaces = (max_chars-l)/2
-    return " "*spaces + val
-
-
-def get_apply_clicks():
-    try:
-        res = requests.get('https://www.random.org/integers/?num=1&min=1&max=60000&col=1&base=10&format=plain&rnd=new')
-        # res = requests.get('https://w4u-test-app.work4labs.com/w4d/api/v1/global/stats?format=json')
-    except Exception:
-        return None
-    if res:
-        # return str(json.loads(res.text).get('count', None))
-        return str(res.text).strip()
-    return None
-
-
-class StoppableThread(threading.Thread):
-
-    def __init__(self):
-        threading.Thread.__init__(self)
-        self._stop = threading.Event()
-
-    def stop(self):
-        self._stop.set()
-
-    def stopped(self):
-        return self._stop.isSet()
-
-
-class RequestThread(StoppableThread):
-    name = "RequestThread"
-
-    def __init__(self, queue):
-        super(RequestThread, self).__init__()
-        self.queue = queue
-
-    def run(self):
-        old_value = ""
-        now = time.time()
-        while not self.stopped():
-            while time.time() > now + 10 or old_value == "":
-                logging.info("GET AC value")
-                value = get_apply_clicks() or old_value
-                now = time.time()
-                if value != old_value:
-                    logging.info("New value %s", value)
-                    self.queue.put(value)
-                    old_value = value
-            time.sleep(0.01)
-
-    def fetch_and_put_value_in_queue(self):
-        logging.info("GET AC value")
-        value = get_apply_clicks() or None
-        if value:
-            logging.info("New value %s", value)
-            self.queue.put(value)
-        return value
-
-
-class DisplayThread(StoppableThread):
-    name = "DisplayThread"
-
-    def __init__(self, queue, seconds=60):
-        super(DisplayThread, self).__init__()
-        self.prg = None
-        self.sec = seconds
-        try:
-            value = queue.get(block=True, timeout=120)
-        except Queue.Empty:
-            self.stop()
-        self.command = [COMMAND, "-s", seconds, "-t", value]
-
-    def run(self):
-        if not self.stopped():
-            logging.info("Display On")
-            logging.info(self.command)
-            time.sleep(self.sec)
-            self.prg = subprocess.Popen(self.command, shell=False)
-            logging.info("Display Off")
-
+    logging.info('Waiting for threads to terminate...')
+    request.stop()
+    display.stop()
+    request.join()
+    request.join()
+    os.unlink(PIDFILE)
+    logging.info('Ciao...')
+    sys.exit(1)
 
 if __name__ == '__main__':
+    """
+    Main file for the application.
+    Three threads involved :
+        - MainThread
+        - RequestThread
+        - DisplayThread
+    We ensure everything ends up gracefuly thanks to GracefulInterruptHandler
+    as a context manager.
+    """
+
+    print '          _____________________________________________ '
+    print '         //:::::::::::::::::::::::::::::::::::::::::::::\\\ '
+    print '       //:::_______:::::::::________::::::::::_____:::::::\\\ '
+    print '     //:::_/   _-"":::_--"""        """--_::::\_  ):::::::::\\\ '
+    print '    //:::/    /:::::_"                    "-_:::\/:::::|^\:::\\\ '
+    print '   //:::/   /~::::::I__                      \:::::::::|  \:::\\\ '
+    print '   \\\:::\   (::::::::::""""---___________     "--------"  /:::// '
+    print '    \\\:::\  |::::::::::::::::::::::::::::""""==____      /:::// '
+    print '     \\\:::"\/::::::::::::::::::::::::::::::::::::::\   /~:::// '
+    print '       \\\:::::::::::::::::::::::::::::::::::::::::::)/~:::// '
+    print '         \\\::::\""""""------_____:::::::::::::::::::::::// '
+    print '           \\\:::"\               """""-----_____::::::// '
+    print '             \\\:::"\    __----__                ):::// '
+    print '               \\\:::"\/~::::::::~\_         __/~::// '
+    print '                 \\\::::::::::::::::""----"""::::// '
+    print '                   \\\:::::::::::::::::::::::::// '
+    print '                     \\\:::\^""--._.--""^/:::// '
+    print '                       \\\::"\         /"::// '
+    print '                         \\\::"\     /"::// '
+    print '                           \\\::"\_/"::// '
+    print '                             \\\:::::// '
+    print '                               \\\_// '
+    print '                                 " '
+
     logging.basicConfig(
         level=logging.INFO,
         format='(%(threadName)-10s) %(message)s',
     )
-    # get_lock('apply_clicks_counter_3')
-    # store the original SIGINT handler
-    original_sigint = signal.getsignal(signal.SIGINT)
-    signal.signal(signal.SIGINT, exit_gracefully)
 
-    values_queue.put("Work4Labs")
-    values_queue.put("AC Counter")
+    if os.path.isfile(PIDFILE):
+        logging.info('%s already exists, exiting...', PIDFILE)
+        sys.exit(0)
+    else:
+        file(PIDFILE, 'w').write(PID)
 
-    request = RequestThread(values_queue)
-    request.start()
+    with GracefulInterruptHandler() as gih:
+        logging.info('Starting...')
+        queue = Queue()
+        queue.put("Work4Labs")
+        queue.put("AC Counter")
 
-    display = DisplayThread(values_queue, 2)
-    display.start()
-    display.join()
+        try:
+            request = RequestThread(queue)
+            request.start()
 
-    display = DisplayThread(values_queue, 2)
-    display.start()
-    display.join()
-
-    try:
-        while request.is_alive():
-            display = DisplayThread(values_queue)
+            display = DisplayThread(queue, 5)
             display.start()
             display.join()
-    except KeyboardInterrupt:
-        exit_gracefully()
 
-    request.stop()
-    request.join()
+            display = DisplayThread(queue, 5)
+            display.start()
+            display.join()
+        except KeyboardInterrupt:
+            exit_gracefuly()
+
+        while True:
+            if gih.interrupted:
+                exit_gracefuly()
+            display = DisplayThread(queue)
+            display.start()
+            display.join()
