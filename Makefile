@@ -62,7 +62,7 @@ symlink:
 	then \
 		rm /etc/systemd/system/ac-counter.timer; \
 	fi;
-	ln -s $(ROOT_DIR)/apply_clicks_counter/ac-counter.timer /etc/systemd/system/ac-counter.timer
+	ln -s $(ROOT_DIR)/ac-counter.timer /etc/systemd/system/ac-counter.timer
 
 venv:
 	@echo "Creating Virtualenv..."
