@@ -3,7 +3,7 @@ SOURCES=display_text.cc
 OBJECTS=$(SOURCES:.cc=.o)
 EXECUTABLE=display_text.app
 ROOT_DIR = $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
-PYTHONHOME ?= $(ROOT_DIR)/venv/
+PYTHONHOME ?= $(ROOT_DIR)/venv
 
 ACTIVATE_VENV = source $(PYTHONHOME)/bin/activate
 PY_RUNNER = ${ACTIVATE_VENV} &&
