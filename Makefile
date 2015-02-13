@@ -54,7 +54,7 @@ reload: pull requirements clean compile symlink
 
 run:
 	@echo "Launching Application..."
-	(test -d $(ROOT_DIR)/main.py || PY_RUNNER $(ROOT_DIR)/main.py &)
+	(test -d $(ROOT_DIR)/main.py || $(PY_RUNNER) $(ROOT_DIR)/main.py &)
 
 symlink:
 	@echo "Symlinking timer to systemd..."
