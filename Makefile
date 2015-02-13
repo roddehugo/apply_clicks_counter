@@ -2,8 +2,8 @@ CXXFLAGS=-Wall -O3 -g
 SOURCES=display_text.cc
 OBJECTS=$(SOURCES:.cc=.o)
 EXECUTABLE=display_text.app
-
-PYTHONHOME ?= ${ROOT_DIR}/venv/
+ROOT_DIR = $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+PYTHONHOME ?= $(ROOT_DIR)/venv/
 
 # Where our library resides.
 # It is split between includes and the binary library in lib
