@@ -75,7 +75,10 @@ pull:
 
 destroy:
 	@echo "Deleting Timer and Virtualenv..."
-	rm /etc/systemd/system/ac-counter.timer
+	@if [ -a /etc/systemd/system/ac-counter.timer ]; \
+	then \
+		rm /etc/systemd/system/ac-counter.timer; \
+	fi;
 	deactivate && (test -d $(PYTHONHOME) || rm -rf $(PYTHONHOME))
 
 # C++ options
