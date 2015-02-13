@@ -2,7 +2,6 @@
 import logging
 from Queue import Empty
 from subprocess import Popen
-from time import sleep
 
 from stoppable_thread import StoppableThread
 
@@ -35,8 +34,7 @@ class DisplayThread(StoppableThread):
         if not self.stopped():
             logging.info("Display On")
             logging.info(self.command)
-            sleep(self.seconds)
-            # self.prg = Popen(self.command, shell=False)
+            self.prg = Popen(self.command, shell=False)
             logging.info("Display Off")
 
     @staticmethod
