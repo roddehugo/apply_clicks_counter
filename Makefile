@@ -20,20 +20,18 @@ LDFLAGS+=-L$(RGB_LIBDIR) -l$(RGB_LIBRARY_NAME) -lrt -lm -lpthread
 
 help:
 	@echo "[help]"
-	@echo "intall: install env for Python"
+	@echo "intall: install env for Python and put things up"
+	@echo "start: reload configuration and run the app"
+	@echo "status: to know if the application is running"
+	@echo "stop: send SIGINT to the application"
 	@echo "venv: build virtualenv"
+	@echo "destroy: remove virtualenv"
 	@echo "activate: activate virtualenv"
 	@echo "compile: compile C++ program"
 	@echo "clean: clean compiled files"
 
 # Python options
-intall: venv reload
-
-reload: pull requirements clean compile symlink
-
-run:
-	@echo "Launching application..."
-	(test -d $(ROOT_DIR)/main.py || PY_RUNNER $(ROOT_DIR)/main.py &)
+install: venv reload
 
 start: reload run
 
@@ -52,25 +50,32 @@ status:
 		fi; \
 	fi;
 
+reload: pull requirements clean compile symlink
+
+run:
+	@echo "Launching Application..."
+	(test -d $(ROOT_DIR)/main.py || PY_RUNNER $(ROOT_DIR)/main.py &)
+
 symlink:
 	@echo "Symlinking timer to systemd..."
 	rm /etc/systemd/system/ac-counter.timer
 	ln -s $(ROOT_DIR)/apply_clicks_counter/ac-counter.timer /etc/systemd/system/ac-counter.timer
 
 venv:
-	@echo "Creating virtualenv..."
+	@echo "Creating Virtualenv..."
 	(test -d $(PYTHONHOME) || virtualenv $(PYTHONHOME))
 
 requirements:
-	@echo "Installing requirements..."
+	@echo "Installing Requirements..."
 	$(ACTIVATE_VENV) && pip install -r $(ROOT_DIR)/requirements.txt
 
 pull:
-	@echo "Pulling from github..."
+	@echo "Pulling from Github..."
 	git pull
 
 destroy:
-	@echo "Deleting virtualenv..."
+	@echo "Deleting Timer and Virtualenv..."
+	rm /etc/systemd/system/ac-counter.timer
 	deactivate && (test -d $(PYTHONHOME) || rm -rf $(PYTHONHOME))
 
 # C++ options
