@@ -26,7 +26,3 @@ The code is pulled from the Github repo into `/root/apply_clicks_counter`.
 There is a `systemd` [timer](https://wiki.archlinux.org/index.php/Systemd/Timers) which automatically start (or restart) the application on device boot and every day.
 
 The timer is configured in `ac-counter.timer` located into `/etc/systemd/system/` directory.
-
-## Auto Reload
-
-The all system is set up to reload its configuration from Github repo on system boot. Plus there is a cron file
