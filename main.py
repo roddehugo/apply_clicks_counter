@@ -4,11 +4,11 @@ import os
 import sys
 from Queue import Queue
 
-from app.request_thread import RequestThread
-from app.display_thread import DisplayThread
-from app.graceful_interrupt_handler import GracefulInterruptHandler
+from request_thread import RequestThread
+from display_thread import DisplayThread
+from graceful_interrupt_handler import GracefulInterruptHandler
 
-from app.settings import PIDFILE, PID, LOG_LEVEL, LOG_FORMAT
+from settings import PIDFILE, PID, LOG_LEVEL, LOG_FORMAT
 
 
 def exit_gracefuly():
