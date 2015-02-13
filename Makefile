@@ -5,6 +5,11 @@ EXECUTABLE=display_text.app
 ROOT_DIR = $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 PYTHONHOME ?= $(ROOT_DIR)/venv/
 
+ACTIVATE_VENV = source $(PYTHONHOME)/bin/activate
+PY_RUNNER = ${ACTIVATE_VENV} &&
+
+PID_FILE = /tmp/apply_clicks_counter_daemon.pid
+
 # Where our library resides.
 # It is split between includes and the binary library in lib
 RGB_INCDIR=include
@@ -21,12 +26,47 @@ help:
 	@echo "compile: compile C++ program"
 	@echo "clean: clean compiled files"
 
-intall: venv activate
+# Python options
+intall: venv pull requirements clean compile
+
+run:
+	@echo "Launching application..."
+	(test -d $(ROOT_DIR)/main.py || PY_RUNNER $(ROOT_DIR)/main.py &)
+
+start: pull requirements clean compile run
+
+stop:
+	@echo "Sending SIGINT to application..."
+	kill -INT $(PID)
+
+status:
+	@if [ -a $(PID_FILE) ]; \
+	then \
+		if ps ax | grep -v grep | grep `cat $(PID_FILE)` | grep main.py > /dev/null; \
+		then \
+			echo "[Running]"; \
+		else \
+			echo "[Not Running]"; \
+		fi; \
+	fi;
 
 venv:
 	@echo "Creating virtualenv..."
 	(test -d $(PYTHONHOME) || virtualenv $(PYTHONHOME))
 
+requirements:
+	@echo "Installing requirements..."
+	$(ACTIVATE_VENV) && pip install -r $(ROOT_DIR)/requirements.txt
+
+pull:
+	@echo "Pulling from github..."
+	git pull
+
+destroy:
+	@echo "Deleting virtualenv..."
+	deactivate && (test -d $(PYTHONHOME) || rm -rf $(PYTHONHOME))
+
+# C++ options
 compile: $(SOURCES) $(EXECUTABLE)
 
 $(EXECUTABLE) : $(OBJECTS) $(RGB_LIBRARY)
