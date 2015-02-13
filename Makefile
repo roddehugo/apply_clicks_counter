@@ -58,7 +58,10 @@ run:
 
 symlink:
 	@echo "Symlinking timer to systemd..."
-	rm /etc/systemd/system/ac-counter.timer
+	@if [ -a /etc/systemd/system/ac-counter.timer ]; \
+	then \
+		rm /etc/systemd/system/ac-counter.timer; \
+	fi;
 	ln -s $(ROOT_DIR)/apply_clicks_counter/ac-counter.timer /etc/systemd/system/ac-counter.timer
 
 venv:
