@@ -1,7 +1,6 @@
 #!/bin/sh
 set -e
 
-CELERYNODES="celery1 celery2 priority export"
 ROOTDIR=`pwd`
 MAKE="make -C $ROOTDIR"
 

@@ -27,13 +27,15 @@ help:
 	@echo "clean: clean compiled files"
 
 # Python options
-intall: venv pull requirements clean compile
+intall: venv reload
+
+reload: pull requirements clean compile symlink
 
 run:
 	@echo "Launching application..."
 	(test -d $(ROOT_DIR)/main.py || PY_RUNNER $(ROOT_DIR)/main.py &)
 
-start: pull requirements clean compile run
+start: reload run
 
 stop:
 	@echo "Sending SIGINT to application..."
@@ -49,6 +51,11 @@ status:
 			echo "[Not Running]"; \
 		fi; \
 	fi;
+
+symlink:
+	@echo "Symlinking timer to systemd..."
+	rm /etc/systemd/system/ac-counter.timer
+	ln -s $(ROOT_DIR)/apply_clicks_counter/ac-counter.timer /etc/systemd/system/ac-counter.timer
 
 venv:
 	@echo "Creating virtualenv..."

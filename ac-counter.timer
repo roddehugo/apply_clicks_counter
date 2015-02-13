@@ -1,0 +1,9 @@
+[Unit]
+Description=Start Apply Clicks Counter on boot and each day
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=1d
+
+[Install]
+WantedBy=timers.target
