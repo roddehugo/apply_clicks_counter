@@ -28,7 +28,7 @@ class DisplayThread(StoppableThread):
             value = queue.get(block=True, timeout=120)
         except Empty:
             self.stop()
-        self.command = [COMMAND, "-s", seconds, "-t", self.center(value)]
+        self.command = [COMMAND, "-s", str(seconds), "-t", self.center(value)]
 
     def run(self):
         if not self.stopped():

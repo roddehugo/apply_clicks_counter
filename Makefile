@@ -6,7 +6,7 @@ ROOT_DIR = $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 PYTHONHOME ?= $(ROOT_DIR)/venv
 
 ACTIVATE_VENV = source $(PYTHONHOME)/bin/activate
-PY_RUNNER = ${ACTIVATE_VENV} &&
+PY_RUNNER = ${ACTIVATE_VENV} && python2
 
 PID_FILE = /tmp/apply_clicks_counter_daemon.pid
 
