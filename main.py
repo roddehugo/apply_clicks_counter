@@ -4,13 +4,11 @@ import os
 import sys
 from Queue import Queue
 
-from request_thread import RequestThread
-from display_thread import DisplayThread
-from graceful_interrupt_handler import GracefulInterruptHandler
+from app.request_thread import RequestThread
+from app.display_thread import DisplayThread
+from app.graceful_interrupt_handler import GracefulInterruptHandler
 
-
-PID = str(os.getpid())
-PIDFILE = "/tmp/apply_clicks_counter_daemon.pid"
+from app.settings import PIDFILE, PID, LOG_LEVEL, LOG_FORMAT
 
 
 def exit_gracefuly():
@@ -65,8 +63,8 @@ if __name__ == '__main__':
     print '                                 " '
 
     logging.basicConfig(
-        level=logging.INFO,
-        format='(%(threadName)-10s) %(message)s',
+        level=LOG_LEVEL,
+        format=LOG_FORMAT,
     )
 
     if os.path.isfile(PIDFILE):

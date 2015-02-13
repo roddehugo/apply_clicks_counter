@@ -7,7 +7,7 @@ from time import time, sleep
 
 from stoppable_thread import StoppableThread
 
-INTERVAL = 60
+from settings import INTERVAL
 
 
 class RequestThread(StoppableThread):

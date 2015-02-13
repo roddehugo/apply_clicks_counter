@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 import logging
-import os
 from Queue import Empty
 from subprocess import Popen
 from time import sleep
 
 from stoppable_thread import StoppableThread
 
-PYTHON_ROOT = os.path.dirname(os.path.realpath(__file__))
-COMMAND = "%s/display_text.app" % PYTHON_ROOT
-TIME_TO_DISPLAY = 60
+from settings import COMMAND, TIME_TO_DISPLAY, MAX_CHARS_ON_DISPLAY
 
 
 class DisplayThread(StoppableThread):
@@ -43,7 +40,7 @@ class DisplayThread(StoppableThread):
             logging.info("Display Off")
 
     @staticmethod
-    def center(val, max_chars=13):
+    def center(val, max_chars=MAX_CHARS_ON_DISPLAY):
         """
         Currently the screen can only display 13 characters
         thus we cut the value and we center it to make things
