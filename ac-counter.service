@@ -2,7 +2,7 @@
 Description=auto start apply_clicks_counter
 
 [Service]
-ExecStart=/root/apply_clicks_counter/scripts/auto_load.sh
+ExecStart=/root/apply_clicks_counter/auto_load.sh
 Type=oneshot
 User=root
 
